@@ -6,6 +6,8 @@
 - `Labs` : Directory for lab projects
 - `Project` : Directory for the big project development
 
+
+
 ## How to configure environment
 
 ### Below instructions are valid for STM32 Nucleo boards
@@ -14,4 +16,6 @@
 - Follow [this](https://www.youtube.com/watch?v=FAv0LO5E2TM&t=147s) tutorial to connect STM32Cube with Keil.
 - If any further configuration will be required for a particular project, it will be stated in a local readme file.
 
+## Remarks
 
+- Never upload entire project. Instead put relevant files (i.e main.c, main.h, something_something.c/h etc..)
