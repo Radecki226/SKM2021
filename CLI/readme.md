@@ -10,6 +10,8 @@ This project implements CLI interface for stm32f303k8 board.
 
 # Manual 
 
+Connect board to PC via USB, run terminal, choose port and set baud rate to 115200 and enjoy the app!
+
 CLI application offers following commands:
 
 - `ip`: shows ip addres of the board
