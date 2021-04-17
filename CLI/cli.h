@@ -26,6 +26,20 @@ typedef struct{
 	bool full;
 }ReceiveBuffer;
 
+
+
+typedef struct {
+	int counter;
+	char *array;
+	size_t size;
+}Monitor;
+
+
+
+
+
+
+
 /*Initialize buffer with array of particular size*/
 void ReceiveBuffer_Init(ReceiveBuffer *receiveBuffer, char *dataBuffer, size_t dataBufferSize );
 
@@ -39,9 +53,20 @@ bool ReceiveBuffer_PutChar(ReceiveBuffer *receiveBuffer, char c);
 bool ReceiveBuffer_Backspace(ReceiveBuffer *receiveBuffer);
 
 /*Executes command according to data string and reply to uart*/
-void CLI_ExecuteCommand(char* data,UART_HandleTypeDef huart);
+void CLI_ExecuteCommand(char* data,UART_HandleTypeDef huart, Monitor *monitor);
 	
 /*API for command line, this function defines interface*/
-void CLI_CommandLine(uint8_t* myRxData,ReceiveBuffer *receiveBuffer,UART_HandleTypeDef huart);
+void CLI_CommandLine(uint8_t* myRxData,ReceiveBuffer *receiveBuffer,UART_HandleTypeDef huart, Monitor *monitor);
+
+/*Function initializing monitor*/
+void Monitor_Init(Monitor *monitor, char* data, size_t dataSize);
+
+/*Function responsible for adding data to monitor*/
+bool Monitor_Add(Monitor *monitor, char* data, size_t dataSize);
+
+/*Function responsible for clearing monitor array*/
+void Monitor_Clear(Monitor *monitor);
+
+
 
 

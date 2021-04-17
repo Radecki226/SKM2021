@@ -47,7 +47,7 @@ bool ReceiveBuffer_Backspace(ReceiveBuffer *receiveBuffer){
 	return true;
 }
 
-void CLI_ExecuteCommand(char* data,UART_HandleTypeDef huart){
+void CLI_ExecuteCommand(char* data,UART_HandleTypeDef huart, Monitor *monitor){
 
 		uint8_t terminator[] = {'\r','\n',0};
 		char *unrecognizedCommand = "Unrecongnized Command";
@@ -64,17 +64,23 @@ void CLI_ExecuteCommand(char* data,UART_HandleTypeDef huart){
 			HAL_UART_Transmit(&huart, (uint8_t*)help, strlen(help), 10);
 			HAL_UART_Transmit(&huart,terminator,3,10);
 		}
+		else if(strcmp(data,"monitor") == 0){
+			HAL_UART_Transmit(&huart,(uint8_t*)monitor->array,monitor->counter,10);
+			HAL_UART_Transmit(&huart,terminator,3,10);
+		}
 		else{
 			HAL_UART_Transmit(&huart, (uint8_t*)unrecognizedCommand, strlen(unrecognizedCommand), 10);
 			HAL_UART_Transmit(&huart,terminator,3,10);
 		}
+
 }
 
 
-void CLI_CommandLine(uint8_t* myRxData,ReceiveBuffer *receiveBuffer,UART_HandleTypeDef huart){
+void CLI_CommandLine(uint8_t* myRxData,ReceiveBuffer *receiveBuffer,UART_HandleTypeDef huart, Monitor *monitor){
 
 	uint8_t currentChar = myRxData[0];
 	uint8_t terminator[] = {'\r','\n',0};
+	uint8_t prompt[] = ">>";
 
 	switch(currentChar){
 		case 127:
@@ -83,8 +89,9 @@ void CLI_CommandLine(uint8_t* myRxData,ReceiveBuffer *receiveBuffer,UART_HandleT
 			break;
 		case '\r':
 			HAL_UART_Transmit(&huart,terminator,3,10);
-			CLI_ExecuteCommand(receiveBuffer->buffer, huart);
+			CLI_ExecuteCommand(receiveBuffer->buffer, huart, monitor);
 			HAL_UART_Transmit(&huart,terminator,3,10);
+			HAL_UART_Transmit(&huart,prompt,3,10);
 			ReceiveBuffer_Clear(receiveBuffer);
 			break;
 		default:
@@ -93,3 +100,32 @@ void CLI_CommandLine(uint8_t* myRxData,ReceiveBuffer *receiveBuffer,UART_HandleT
 			break;
 	}
 }
+
+void Monitor_Init(Monitor *monitor, char* data, size_t dataSize){
+	monitor->array = data;
+	monitor->counter = 0;
+	monitor->size = dataSize;
+}
+
+bool Monitor_Add(Monitor *monitor,char* data, size_t dataSize){
+	if (dataSize+1 < monitor->size - monitor->counter){
+		for (int i= 0; i < dataSize ; i++){
+			monitor->array[monitor->counter] = data[i];
+			monitor->counter ++;
+		}
+		monitor->array[monitor->counter] = '\r';
+		monitor->counter ++;
+		monitor->array[monitor->counter] = '\n';
+		monitor->counter ++;
+		return true;
+	}
+	else
+		return false;
+}
+
+void Monitor_Clear(Monitor *monitor){
+	memset(monitor->array, 0 , monitor->size);
+	monitor->counter = 0;
+}
+
+
